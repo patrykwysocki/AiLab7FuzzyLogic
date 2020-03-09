@@ -8,6 +8,9 @@
 #include <SFML/Graphics.hpp>
 #include "FuzzyLogic.h"
 #include "FuzzyOperations.h"
+#include "Alien.h"
+#include "Player.h"
+#include <random>
 class Game
 {
 public:
@@ -25,14 +28,12 @@ private:
 	void update(sf::Time t_deltaTime);
 	void render();
 	
-	void setupFontAndText();
-	void setupSprite();
 
 	sf::RenderWindow m_window; // main SFML window
 	sf::Font m_ArialBlackfont; // font used by message
-	sf::Text m_welcomeMessage; // text used for message on screen
-	sf::Texture m_logoTexture; // texture used for sfml logo
-	sf::Sprite m_logoSprite; // sprite used for sfml logo
+	sf::Text m_forceString;
+	sf::Text m_distanceString;
+	sf::Text m_deployedString;
 	bool m_exitGame; // control exiting game
 	double m_tiny;
 	double m_small;
@@ -44,8 +45,13 @@ private:
 	double m_low;
 	double m_mediumHigh;
 	double m_high;
-	double m_deploy;
+	int m_deploy;
 	FuzzyLogic m_fuzzyLogic;
+	std::vector<Alien*> m_aliens;
+	std::vector<Player*>m_players;
+	int randomNum(int t_min, int t_max);
+	void setUpText();
+	void fuzzyCreation();
 };
 
 #endif // !GAME_HPP

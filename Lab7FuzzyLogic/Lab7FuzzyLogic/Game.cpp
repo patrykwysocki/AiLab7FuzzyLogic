@@ -13,35 +13,7 @@ Game::Game() :
 	m_window{ sf::VideoMode{ 800U, 600U, 32U }, "SFML Game" },
 	m_exitGame{false} //when true game will exit
 {
-	setupFontAndText(); // load font 
-	setupSprite(); // load texture
-	m_tiny = m_fuzzyLogic.FuzzyTriangle(8, -10, 0, 10);
-	m_small = m_fuzzyLogic.FuzzyTrapezoid(8, 2.5, 10, 15,20);
-	m_moderate = m_fuzzyLogic.FuzzyTrapezoid(8, 15, 20, 25,30);
-	m_large = m_fuzzyLogic.FuzzyGrade(8, 25,30);
-	m_close = m_fuzzyLogic.FuzzyTriangle(25,-30,0,30);
-	m_medium = m_fuzzyLogic.FuzzyTrapezoid(25,10,30,50,70);
-	m_far = m_fuzzyLogic.FuzzyGrade(25,50,70);
-	std::cout << "Tiny " << m_tiny << std::endl;
-	std::cout << "Small " << m_small << std::endl;
-	std::cout << "Moderate " << m_moderate<< std::endl;
-	std::cout << "Large" << m_large<< std::endl;
-	std::cout << "Close " << m_close << std::endl;
-	std::cout << "Medium " << m_medium<< std::endl;
-	std::cout << "Far " << m_far<< std::endl;
-	m_low = FuzzyOperations::FuzzyOR
-	(FuzzyOperations::FuzzyAND(m_medium, m_tiny),
-		FuzzyOperations::FuzzyAND(m_medium, m_small));
-	m_mediumHigh = FuzzyOperations::FuzzyAND
-	(m_close, m_tiny);
-	m_high = FuzzyOperations::FuzzyAND
-	(m_close, FuzzyOperations::FuzzyNOT(m_medium));
-	std::cout << "Low " << m_low << std::endl;
-	std::cout << "MediumHigh " << m_mediumHigh << std::endl;
-	std::cout << "High " << m_high << std::endl;
-	m_deploy = ((m_low * 10 + m_mediumHigh * 30 + m_high * 50) /
-		(m_low + m_mediumHigh + m_high));
-	std::cout << "Deploy " << m_deploy<< std::endl;
+	setUpText();
 }
 
 /// <summary>
@@ -99,6 +71,116 @@ void Game::processEvents()
 		}
 	}
 }
+int Game::randomNum(int t_min, int t_max)
+{
+	std::random_device dev;
+	std::mt19937 rng(dev());
+	std::uniform_int_distribution<std::mt19937::result_type> dist(t_min, t_max);
+	return dist(rng);
+}
+
+void Game::setUpText()
+{
+	if (!m_ArialBlackfont.loadFromFile("ASSETS\\FONTS\\ariblk.ttf"))
+	{
+		std::cout << "problem loading arial black font" << std::endl;
+	}
+	m_forceString.setFont(m_ArialBlackfont);
+	m_distanceString.setFont(m_ArialBlackfont);
+	m_deployedString.setFont(m_ArialBlackfont);
+	m_forceString.setFillColor(sf::Color::Green);
+	m_distanceString.setFillColor(sf::Color::Black);
+	m_deployedString.setFillColor(sf::Color::Blue);
+	m_forceString.setPosition(sf::Vector2f(0, 300));
+	m_distanceString.setPosition(sf::Vector2f(300, 300));
+	m_deployedString.setPosition(sf::Vector2f(590, 300));
+}
+
+void Game::fuzzyCreation()
+{
+	int distance = randomNum(1, 100);
+	int force = randomNum(1, 46);
+	std::cout << "Distance " << distance << std::endl;
+	std::cout << "Force " << force << std::endl;
+
+	m_tiny = FuzzyLogic::FuzzyGrade(force, 0, 10);
+	m_small = FuzzyLogic::FuzzyTrapezoid(force, 2.5, 10, 15, 20);
+	m_moderate = FuzzyLogic::FuzzyTrapezoid(force, 15, 20, 25, 30);
+	m_large = FuzzyLogic::FuzzyGrade(force, 25, 30);
+
+	m_close = FuzzyLogic::FuzzyGrade(distance, 0, 30);
+	m_medium = FuzzyLogic::FuzzyTrapezoid(distance, 10, 30, 50, 70);
+	m_far = FuzzyLogic::FuzzyGrade(distance, 50, 70);
+
+	std::cout << "Tiny " << m_tiny << std::endl;
+	std::cout << "Small " << m_small << std::endl;
+	std::cout << "Moderate " << m_moderate << std::endl;
+	std::cout << "Large" << m_large << std::endl;
+	std::cout << "Close " << m_close << std::endl;
+	std::cout << "Medium " << m_medium << std::endl;
+	std::cout << "Far " << m_far << std::endl;
+
+	//Low is
+	//(Medium AND Tiny) OR(Medium AND Small) OR(Far AND NOT(Large))
+
+	m_low = FuzzyOperations::FuzzyOR
+	(FuzzyOperations::FuzzyAND(m_medium, m_tiny),
+		FuzzyOperations::FuzzyAND(m_medium, m_small)
+	);
+
+	//Medium is
+	//(Close AND Tiny) OR(Medium AND Moderate) OR(Far AND Large)
+
+	m_mediumHigh = FuzzyOperations::FuzzyAND
+	(m_close, m_tiny);
+
+	//High is
+	//(Close AND NOT(Tiny)) OR(Medium AND Large)
+
+	m_high = FuzzyOperations::FuzzyAND
+	(m_close, FuzzyOperations::FuzzyNOT(m_medium));
+
+
+	std::cout << "Low " << m_low << std::endl;
+	std::cout << "MediumHigh " << m_mediumHigh << std::endl;
+	std::cout << "High " << m_high << std::endl;
+
+	m_deploy = ((m_low * 10 + m_mediumHigh * 30 + m_high * 50) /
+		(m_low + m_mediumHigh + m_high));
+
+	std::cout << "Deploy " << m_deploy << std::endl;
+	std::cout << "-------------------------------------------------------------------------------" << std::endl;
+	m_aliens.clear();
+	m_players.clear();
+	int x = 0;
+	int y = 0;
+	int px = 0;
+	int py = 400;
+	for (int i = 0; i < force; ++i)
+	{
+		m_aliens.push_back(new Alien(sf::Vector2f(x, y)));
+		x += 50;
+		if (x > 750)
+		{
+			x = 0;
+			y += 50;
+		}
+	}
+	for (int i = 0; i < m_deploy; ++i)
+	{
+		m_players.push_back(new Player(sf::Vector2f(px, py)));
+		px += 50;
+		if (px > 750)
+		{
+			px = 0;
+			py += 50;
+		}
+	}
+	m_forceString.setString("Force: " + std::to_string(force));
+	m_distanceString.setString("Distance: " + std::to_string(distance));
+	m_deployedString.setString("Deployed: " + std::to_string(m_deploy));
+}
+
 
 
 /// <summary>
@@ -110,6 +192,10 @@ void Game::processKeys(sf::Event t_event)
 	if (sf::Keyboard::Escape == t_event.key.code)
 	{
 		m_exitGame = true;
+	}
+	if (sf::Keyboard::Space == t_event.key.code)
+	{
+		fuzzyCreation();
 	}
 }
 
@@ -130,42 +216,18 @@ void Game::update(sf::Time t_deltaTime)
 /// </summary>
 void Game::render()
 {
+
 	m_window.clear(sf::Color::White);
-	m_window.draw(m_welcomeMessage);
-	m_window.draw(m_logoSprite);
+	for (auto& alien : m_aliens)
+	{
+		alien->draw(m_window);
+	}
+	for (auto& player : m_players)
+	{
+		player->draw(m_window);
+	}
+	m_window.draw(m_forceString);
+	m_window.draw(m_distanceString);
+	m_window.draw(m_deployedString);
 	m_window.display();
-}
-
-/// <summary>
-/// load the font and setup the text message for screen
-/// </summary>
-void Game::setupFontAndText()
-{
-	if (!m_ArialBlackfont.loadFromFile("ASSETS\\FONTS\\ariblk.ttf"))
-	{
-		std::cout << "problem loading arial black font" << std::endl;
-	}
-	m_welcomeMessage.setFont(m_ArialBlackfont);
-	m_welcomeMessage.setString("SFML Game");
-	m_welcomeMessage.setStyle(sf::Text::Underlined | sf::Text::Italic | sf::Text::Bold);
-	m_welcomeMessage.setPosition(40.0f, 40.0f);
-	m_welcomeMessage.setCharacterSize(80U);
-	m_welcomeMessage.setOutlineColor(sf::Color::Red);
-	m_welcomeMessage.setFillColor(sf::Color::Black);
-	m_welcomeMessage.setOutlineThickness(3.0f);
-
-}
-
-/// <summary>
-/// load the texture and setup the sprite for the logo
-/// </summary>
-void Game::setupSprite()
-{
-	if (!m_logoTexture.loadFromFile("ASSETS\\IMAGES\\SFML-LOGO.png"))
-	{
-		// simple error message if previous call fails
-		std::cout << "problem loading logo" << std::endl;
-	}
-	m_logoSprite.setTexture(m_logoTexture);
-	m_logoSprite.setPosition(300.0f, 180.0f);
 }
