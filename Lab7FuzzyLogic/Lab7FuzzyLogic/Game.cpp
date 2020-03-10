@@ -12,8 +12,8 @@
 Game::Game() :
 	m_window{ sf::VideoMode{ 800U, 600U, 32U }, "SFML Game" },
 	m_exitGame{false} //when true game will exit
-{
-	setUpText();
+{	setUpText();
+	
 }
 
 /// <summary>
@@ -88,16 +88,47 @@ void Game::setUpText()
 	m_forceString.setFont(m_ArialBlackfont);
 	m_distanceString.setFont(m_ArialBlackfont);
 	m_deployedString.setFont(m_ArialBlackfont);
+	m_startString.setFont(m_ArialBlackfont);
+
+
 	m_forceString.setFillColor(sf::Color::Green);
 	m_distanceString.setFillColor(sf::Color::Black);
 	m_deployedString.setFillColor(sf::Color::Blue);
-	m_forceString.setPosition(sf::Vector2f(0, 300));
-	m_distanceString.setPosition(sf::Vector2f(300, 300));
-	m_deployedString.setPosition(sf::Vector2f(590, 300));
+	m_startString.setFillColor(sf::Color::Black);
+
+
+	m_forceString.setCharacterSize(50);
+	m_distanceString.setCharacterSize(50);
+	m_deployedString.setCharacterSize(50);
+	m_startString.setCharacterSize(60);
+	m_forceString.setOrigin(sf::Vector2f(m_forceString.getGlobalBounds().width / 2, m_forceString.getGlobalBounds().height / 2));
+
+
+
+	m_distanceString.setOrigin(sf::Vector2f(m_distanceString.getGlobalBounds().width / 2, m_distanceString.getGlobalBounds().height / 2));
+	
+
+
+	m_deployedString.setOrigin(sf::Vector2f(m_deployedString.getGlobalBounds().width / 2, m_deployedString.getGlobalBounds().height / 2));
+
+	m_startString.setString("Press Space to Fuzzify");
+	m_startString.setOrigin(sf::Vector2f(m_startString.getGlobalBounds().width / 2, m_startString.getGlobalBounds().height / 2));
+	m_startString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
+
+	m_forceString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
+
+
+	m_distanceString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
+
+
+
+	m_deployedString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
 }
 
 void Game::fuzzyCreation()
 {
+	
+	m_startString.setString("");
 	int distance = randomNum(1, 100);
 	int force = randomNum(1, 46);
 	std::cout << "Distance " << distance << std::endl;
@@ -176,9 +207,22 @@ void Game::fuzzyCreation()
 			py += 50;
 		}
 	}
+
 	m_forceString.setString("Force: " + std::to_string(force));
 	m_distanceString.setString("Distance: " + std::to_string(distance));
 	m_deployedString.setString("Deployed: " + std::to_string(m_deploy));
+
+	m_forceString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
+
+
+	m_distanceString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
+
+
+	
+	m_deployedString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) /2.0f);
+
+
+
 }
 
 
@@ -218,6 +262,7 @@ void Game::render()
 {
 
 	m_window.clear(sf::Color::White);
+	m_window.draw(m_startString);
 	for (auto& alien : m_aliens)
 	{
 		alien->draw(m_window);

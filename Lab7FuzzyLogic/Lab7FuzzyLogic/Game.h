@@ -34,6 +34,7 @@ private:
 	sf::Text m_forceString;
 	sf::Text m_distanceString;
 	sf::Text m_deployedString;
+	sf::Text m_startString;
 	bool m_exitGame; // control exiting game
 	double m_tiny;
 	double m_small;
