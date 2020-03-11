@@ -5,8 +5,9 @@
 class Alien
 {
 public:
-	Alien(sf::Vector2f t_position) :
-		m_position(t_position)
+	Alien(sf::Vector2f t_position, sf::Vector2f t_scale) :
+		m_position(t_position),
+		m_scale(t_scale)
 	{
 		if (!m_texture.loadFromFile("ASSETS\\IMAGES\\apes.png"))
 		{
@@ -18,6 +19,7 @@ public:
 		m_sprite.setPosition(t_position);
 
 		m_sprite.setScale(0.1, 0.1);
+		m_sprite.scale(t_scale);
 	}
 	void draw(sf::RenderWindow& window)
 	{
@@ -27,5 +29,6 @@ private:
 	sf::Texture m_texture;
 	sf::Sprite m_sprite;
 	sf::Vector2f m_position;
+	sf::Vector2f m_scale;
 };
 #endif // !ALIEN_H

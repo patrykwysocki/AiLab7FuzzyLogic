@@ -18,6 +18,7 @@ public:
 		m_sprite.setPosition(t_position);
 		
 		m_sprite.setScale(0.1, 0.1);
+
 	}
 	void draw(sf::RenderWindow& window)
 	{
@@ -27,5 +28,6 @@ private:
 	sf::Texture m_texture;
 	sf::Sprite m_sprite;
 	sf::Vector2f m_position;
+
 };
 #endif // !PLAYER_H

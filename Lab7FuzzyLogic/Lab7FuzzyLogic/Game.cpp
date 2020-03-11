@@ -1,8 +1,8 @@
 #include "Game.h"
 #include <iostream>
 
-
-
+static const unsigned int S_WINDOW_H = 600U;
+static const unsigned int S_WINDOW_W = 1000U;
 /// <summary>
 /// default constructor
 /// setup the window properties
@@ -10,10 +10,19 @@
 /// load and setup thne image
 /// </summary>
 Game::Game() :
-	m_window{ sf::VideoMode{ 800U, 600U, 32U }, "SFML Game" },
+	m_window{ sf::VideoMode{ S_WINDOW_W, S_WINDOW_H, 32U }, "Fuzzy Logic Lab" },
 	m_exitGame{false} //when true game will exit
-{	setUpText();
-	
+{	//setUpText();
+	if (!m_ArialBlackfont.loadFromFile("ASSETS\\FONTS\\ariblk.ttf"))
+	{
+		std::cout << "problem loading arial black font" << std::endl;
+	}
+	m_startString.setFillColor(sf::Color::Black);
+	m_startString.setCharacterSize(60);
+	m_startString.setFont(m_ArialBlackfont);
+	m_startString.setString("Press Space to Fuzzify");
+	m_startString.setOrigin(sf::Vector2f(m_startString.getGlobalBounds().width / 2, m_startString.getGlobalBounds().height / 2));
+	m_startString.setPosition(m_window.getSize().x / 2.0f, m_window.getSize().y / 2.0f);
 }
 
 /// <summary>
@@ -81,106 +90,87 @@ int Game::randomNum(int t_min, int t_max)
 
 void Game::setUpText()
 {
-	if (!m_ArialBlackfont.loadFromFile("ASSETS\\FONTS\\ariblk.ttf"))
-	{
-		std::cout << "problem loading arial black font" << std::endl;
-	}
 	m_forceString.setFont(m_ArialBlackfont);
-	m_distanceString.setFont(m_ArialBlackfont);
+	m_rangeString.setFont(m_ArialBlackfont);
 	m_deployedString.setFont(m_ArialBlackfont);
-	m_startString.setFont(m_ArialBlackfont);
-
 
 	m_forceString.setFillColor(sf::Color::Green);
-	m_distanceString.setFillColor(sf::Color::Black);
+	m_rangeString.setFillColor(sf::Color::Black);
 	m_deployedString.setFillColor(sf::Color::Blue);
-	m_startString.setFillColor(sf::Color::Black);
 
+	m_forceString.setCharacterSize(35);
+	m_rangeString.setCharacterSize(35);
+	m_deployedString.setCharacterSize(35);
 
-	m_forceString.setCharacterSize(50);
-	m_distanceString.setCharacterSize(50);
-	m_deployedString.setCharacterSize(50);
-	m_startString.setCharacterSize(60);
 	m_forceString.setOrigin(sf::Vector2f(m_forceString.getGlobalBounds().width / 2, m_forceString.getGlobalBounds().height / 2));
-
-
-
-	m_distanceString.setOrigin(sf::Vector2f(m_distanceString.getGlobalBounds().width / 2, m_distanceString.getGlobalBounds().height / 2));
-	
-
-
+	m_rangeString.setOrigin(sf::Vector2f(m_rangeString.getGlobalBounds().width / 2, m_rangeString.getGlobalBounds().height / 2));
 	m_deployedString.setOrigin(sf::Vector2f(m_deployedString.getGlobalBounds().width / 2, m_deployedString.getGlobalBounds().height / 2));
 
-	m_startString.setString("Press Space to Fuzzify");
-	m_startString.setOrigin(sf::Vector2f(m_startString.getGlobalBounds().width / 2, m_startString.getGlobalBounds().height / 2));
-	m_startString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
-
-	m_forceString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
-
-
-	m_distanceString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
-
-
-
-	m_deployedString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
+	m_forceString.setPosition(m_window.getSize().x / 8.0f, m_window.getSize().y / 2.0f);
+	m_rangeString.setPosition(m_window.getSize().x / 2.0f, m_window.getSize().y / 2.0f);
+	m_deployedString.setPosition(m_window.getSize().x / 1.2f, m_window.getSize().y / 2.0f);
 }
 
 void Game::fuzzyCreation()
 {
-	
 	m_startString.setString("");
-	int distance = randomNum(1, 100);
-	int force = randomNum(1, 46);
-	std::cout << "Distance " << distance << std::endl;
-	std::cout << "Force " << force << std::endl;
 
-	m_tiny = FuzzyLogic::FuzzyGrade(force, 0, 10);
+	int range = randomNum(1, 100);
+	int force = randomNum(1, 100);
+	std::cout << "Range : " << range << std::endl;
+	std::cout << "Force : " << force << std::endl;
+
+	m_tiny = FuzzyLogic::FuzzyTriangle(force, -10,0, 10);
 	m_small = FuzzyLogic::FuzzyTrapezoid(force, 2.5, 10, 15, 20);
 	m_moderate = FuzzyLogic::FuzzyTrapezoid(force, 15, 20, 25, 30);
 	m_large = FuzzyLogic::FuzzyGrade(force, 25, 30);
 
-	m_close = FuzzyLogic::FuzzyGrade(distance, 0, 30);
-	m_medium = FuzzyLogic::FuzzyTrapezoid(distance, 10, 30, 50, 70);
-	m_far = FuzzyLogic::FuzzyGrade(distance, 50, 70);
+	m_close = FuzzyLogic::FuzzyTriangle(range, -30,0, 30);
+	m_medium = FuzzyLogic::FuzzyTrapezoid(range, 10, 30, 50, 70);
+	m_far = FuzzyLogic::FuzzyGrade(range, 50, 70);
 
-	std::cout << "Tiny " << m_tiny << std::endl;
-	std::cout << "Small " << m_small << std::endl;
-	std::cout << "Moderate " << m_moderate << std::endl;
-	std::cout << "Large" << m_large << std::endl;
-	std::cout << "Close " << m_close << std::endl;
-	std::cout << "Medium " << m_medium << std::endl;
-	std::cout << "Far " << m_far << std::endl;
+	std::cout << "Tiny : " << m_tiny << std::endl;
+	std::cout << "Small : " << m_small << std::endl;
+	std::cout << "Moderate : " << m_moderate << std::endl;
+	std::cout << "Large : " << m_large << std::endl;
+	std::cout << "Close : " << m_close << std::endl;
+	std::cout << "Medium : " << m_medium << std::endl;
+	std::cout << "Far : " << m_far << std::endl;
 
 	//Low is
 	//(Medium AND Tiny) OR(Medium AND Small) OR(Far AND NOT(Large))
-
 	m_low = FuzzyOperations::FuzzyOR
 	(FuzzyOperations::FuzzyAND(m_medium, m_tiny),
 		FuzzyOperations::FuzzyAND(m_medium, m_small)
 	);
+	m_low = FuzzyOperations::FuzzyOR(m_low, 
+		FuzzyOperations::FuzzyAND(m_far, 
+			FuzzyOperations::FuzzyNOT(m_large)));
 
 	//Medium is
 	//(Close AND Tiny) OR(Medium AND Moderate) OR(Far AND Large)
+	m_mediumHigh = FuzzyOperations::FuzzyOR(
+		FuzzyOperations::FuzzyAND(m_close, m_tiny), 
+		FuzzyOperations::FuzzyAND(m_medium, m_moderate));
 
-	m_mediumHigh = FuzzyOperations::FuzzyAND
-	(m_close, m_tiny);
+	m_mediumHigh = FuzzyOperations::FuzzyOR(m_mediumHigh, 
+		FuzzyOperations::FuzzyAND(m_far, m_large));
 
 	//High is
 	//(Close AND NOT(Tiny)) OR(Medium AND Large)
+	m_high = FuzzyOperations::FuzzyOR(
+		FuzzyOperations::FuzzyAND(m_close, FuzzyOperations::FuzzyNOT(m_tiny)),
+		FuzzyOperations::FuzzyAND(m_medium, m_large));
 
-	m_high = FuzzyOperations::FuzzyAND
-	(m_close, FuzzyOperations::FuzzyNOT(m_medium));
-
-
-	std::cout << "Low " << m_low << std::endl;
-	std::cout << "MediumHigh " << m_mediumHigh << std::endl;
-	std::cout << "High " << m_high << std::endl;
+	std::cout << "Low : " << m_low << std::endl;
+	std::cout << "MediumHigh : " << m_mediumHigh << std::endl;
+	std::cout << "High : " << m_high << std::endl;
 
 	m_deploy = ((m_low * 10 + m_mediumHigh * 30 + m_high * 50) /
 		(m_low + m_mediumHigh + m_high));
-
-	std::cout << "Deploy " << m_deploy << std::endl;
+	std::cout << "Deploy : " << m_deploy << std::endl;
 	std::cout << "-------------------------------------------------------------------------------" << std::endl;
+
 	m_aliens.clear();
 	m_players.clear();
 	int x = 0;
@@ -189,9 +179,13 @@ void Game::fuzzyCreation()
 	int py = 400;
 	for (int i = 0; i < force; ++i)
 	{
-		m_aliens.push_back(new Alien(sf::Vector2f(x, y)));
+		sf::Vector2f tempScale = sf::Vector2f(1.0f - (static_cast<float>(range) / 100.0f),
+			(1.0f - (static_cast<float>(range) / 100.0f)));
+		m_aliens.push_back(new Alien(sf::Vector2f(x, y),
+			tempScale));
+
 		x += 50;
-		if (x > 750)
+		if (x > S_WINDOW_W-50)
 		{
 			x = 0;
 			y += 50;
@@ -201,28 +195,17 @@ void Game::fuzzyCreation()
 	{
 		m_players.push_back(new Player(sf::Vector2f(px, py)));
 		px += 50;
-		if (px > 750)
+		if (px > S_WINDOW_W-50)
 		{
 			px = 0;
 			py += 50;
 		}
 	}
 
-	m_forceString.setString("Force: " + std::to_string(force));
-	m_distanceString.setString("Distance: " + std::to_string(distance));
-	m_deployedString.setString("Deployed: " + std::to_string(m_deploy));
-
-	m_forceString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
-
-
-	m_distanceString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) / 2.0f);
-
-
-	
-	m_deployedString.setPosition(static_cast<sf::Vector2f>(m_window.getSize()) /2.0f);
-
-
-
+	m_forceString.setString("Force : " + std::to_string(force));
+	m_rangeString.setString("Range : " + std::to_string(range));
+	m_deployedString.setString("Deployed : " + std::to_string(m_deploy));
+	setUpText();
 }
 
 
@@ -260,9 +243,8 @@ void Game::update(sf::Time t_deltaTime)
 /// </summary>
 void Game::render()
 {
-
 	m_window.clear(sf::Color::White);
-	m_window.draw(m_startString);
+
 	for (auto& alien : m_aliens)
 	{
 		alien->draw(m_window);
@@ -271,8 +253,9 @@ void Game::render()
 	{
 		player->draw(m_window);
 	}
+	m_window.draw(m_startString);
 	m_window.draw(m_forceString);
-	m_window.draw(m_distanceString);
+	m_window.draw(m_rangeString);
 	m_window.draw(m_deployedString);
 	m_window.display();
 }
