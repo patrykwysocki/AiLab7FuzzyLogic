@@ -181,8 +181,8 @@ void Game::fuzzyCreation()
 	{
 		sf::Vector2f tempScale = sf::Vector2f(1.0f - (static_cast<float>(range) / 100.0f),
 			(1.0f - (static_cast<float>(range) / 100.0f)));
-		m_aliens.push_back(new Alien(sf::Vector2f(x, y),
-			tempScale));
+		m_aliens.push_back(new Alien(sf::Vector2f(x, y)));
+		m_aliens.at(i)->setScale(tempScale);
 
 		x += 50;
 		if (x > S_WINDOW_W-50)
