@@ -80,6 +80,9 @@ void Game::processEvents()
 		}
 	}
 }
+/// <summary>
+/// random number generator in a range
+/// </summary>
 int Game::randomNum(int t_min, int t_max)
 {
 	std::random_device dev;
@@ -88,6 +91,9 @@ int Game::randomNum(int t_min, int t_max)
 	return dist(rng);
 }
 
+/// <summary>
+/// position,color,character size ,origin of text for the force,range,deployed numbers
+/// </summary>
 void Game::setUpText()
 {
 	m_forceString.setFont(m_ArialBlackfont);
@@ -111,24 +117,34 @@ void Game::setUpText()
 	m_deployedString.setPosition(m_window.getSize().x / 1.2f, m_window.getSize().y / 2.0f);
 }
 
+/// <summary>
+/// where we do the fuzzy stuff
+///random generate the range and force, use the fuzzy logic operations
+/// fuzzify, defuzzify, set up the aliens and players,
+/// draw the texts for the fuzzy variables.
+/// </summary>
 void Game::fuzzyCreation()
 {
 	m_startString.setString("");
 
+	//range and force for fuzzy logic
 	int range = randomNum(1, 100);
 	int force = randomNum(1, 100);
 	std::cout << "Range : " << range << std::endl;
 	std::cout << "Force : " << force << std::endl;
 
+	//fuzzifiy for size
 	m_tiny = FuzzyLogic::FuzzyTriangle(force, -10,0, 10);
 	m_small = FuzzyLogic::FuzzyTrapezoid(force, 2.5, 10, 15, 20);
 	m_moderate = FuzzyLogic::FuzzyTrapezoid(force, 15, 20, 25, 30);
 	m_large = FuzzyLogic::FuzzyGrade(force, 25, 30);
 
+	//fuzzifiy for range
 	m_close = FuzzyLogic::FuzzyTriangle(range, -30,0, 30);
 	m_medium = FuzzyLogic::FuzzyTrapezoid(range, 10, 30, 50, 70);
 	m_far = FuzzyLogic::FuzzyGrade(range, 50, 70);
 
+	//output the results
 	std::cout << "Tiny : " << m_tiny << std::endl;
 	std::cout << "Small : " << m_small << std::endl;
 	std::cout << "Moderate : " << m_moderate << std::endl;
@@ -136,6 +152,8 @@ void Game::fuzzyCreation()
 	std::cout << "Close : " << m_close << std::endl;
 	std::cout << "Medium : " << m_medium << std::endl;
 	std::cout << "Far : " << m_far << std::endl;
+
+	//rule matrix
 
 	//Low is
 	//(Medium AND Tiny) OR(Medium AND Small) OR(Far AND NOT(Large))
@@ -166,11 +184,13 @@ void Game::fuzzyCreation()
 	std::cout << "MediumHigh : " << m_mediumHigh << std::endl;
 	std::cout << "High : " << m_high << std::endl;
 
+	//defuzzify
 	m_deploy = ((m_low * 10 + m_mediumHigh * 30 + m_high * 50) /
 		(m_low + m_mediumHigh + m_high));
 	std::cout << "Deploy : " << m_deploy << std::endl;
 	std::cout << "-------------------------------------------------------------------------------" << std::endl;
 
+	//set up the players and aliens in regards of the deploy number and force number
 	m_aliens.clear();
 	m_players.clear();
 	int x = 0;
@@ -179,6 +199,7 @@ void Game::fuzzyCreation()
 	int py = 400;
 	for (int i = 0; i < force; ++i)
 	{
+		//scale the sprite based on the range(how far/close alien is)
 		sf::Vector2f tempScale = sf::Vector2f(1.0f - (static_cast<float>(range) / 100.0f),
 			(1.0f - (static_cast<float>(range) / 100.0f)));
 		m_aliens.push_back(new Alien(sf::Vector2f(x, y)));
